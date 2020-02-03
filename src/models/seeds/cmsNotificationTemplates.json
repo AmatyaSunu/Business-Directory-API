@@ -1,0 +1,12 @@
+[
+    {
+        "typeId":1,
+        "slug":"POST_REPORTED",
+        "local":"en",
+        "group":"post",
+        "description":"When a post is reported by a user.",
+        "title":"<@TITLE>",
+        "template":"<@USERNAME> has reported a post of <@POSTOWNER>'s post."
+        
+    }
+]
