@@ -2,17 +2,6 @@ import nodeMailer from "nodemailer";
 import hbs from "nodemailer-express-handlebars";
 import config from "../config";
 
-/*let options = {
-    viewEngine: {
-        extname: ".hbs",
-        layoutsDir: "src/views/layouts/",
-        defaultLayout: "layout",
-        partialsDir: "src/views/emailTemplates/partials/"
-    },
-    viewPath: "src/views/emailTemplates/",
-    //partialsDir :'views/emailTemplates/partials/',
-    extname: ".hbs"
-};*/
     let emailConfig = {
         host: config.mailer.host,
         port: config.mailer.port,
@@ -25,6 +14,12 @@ import config from "../config";
 
     let transport = nodeMailer.createTransport(emailConfig);
 
+    let options = {
+        viewEngine: 'handlebars',
+        viewPath: '../templates/',
+        extName: '.html'
+    };
+    transport.use("compile", hbs(options));
 
     export function dispatchMail(emailObj) {
     const mailFormat = `
@@ -39,14 +34,14 @@ import config from "../config";
         <h3>Message</h3>
         <p>${emailObj.message}</p>`;
 
-    let mailOptions = {
-        from: 'sunidhiamatya.ebp@gmail.com',
-        to: emailObj.email,
-        subject: 'Feedback from User',
-        text: mailFormat,
-    };
-
-    transport.sendMail(mailOptions, function (err, info){
+    transport.sendMail(
+        {
+            from: 'sunidhiamatya.ebp@gmail.com',
+            to: emailObj.email,
+            subject: 'Feedback from User',
+            text: mailFormat,
+        },
+        function (err, info){
             if(err) {
                 console.log(err);
             } else {
@@ -54,4 +49,28 @@ import config from "../config";
             }
     });
 }
-export default dispatchMail;
+    export default dispatchMail;
+
+    /*export function resetPasswordMail(emailObj) {
+
+        transport.sendMail(
+            {
+                from: 'sunidhiamatya.ebp@gmail.com',
+                to: emailObj.email,
+                subject: 'Reset Password Link',
+                text: 'forgotPassword',
+                context: {
+                    url: 'www.google.com',
+                    name: emailObj.name.split(' ')[0]
+                }
+            },
+            function (err, info){
+            if(err) {
+                console.log(err);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    }
+
+    export default resetPasswordMail;*/

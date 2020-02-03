@@ -35,6 +35,7 @@
     "@babel/core": "^7.8.3",
     "@babel/node": "^7.8.3",
     "@babel/preset-env": "^7.8.3",
+    "cors": "^2.8.5",
     "express-swagger-generator": "^1.1.17"
   }
 }

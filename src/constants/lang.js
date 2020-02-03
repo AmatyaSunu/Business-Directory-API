@@ -61,8 +61,24 @@ module.exports = {
         UNSUCCESS: {
             httpCode: 400,
             message: 'Category Cannot Be Fetched'
+        }
+    },
+    LOGIN:{
+        SUCCESS: {
+            httpCode: 200,
+            message: 'Login Successful'
         },
 
+        NOT_MATCHED: {
+            httpCode: 400,
+            message: 'Email and password not matched'
+        }
+    },
+    RESET: {
+        CONTACT: {
+            httpCode: 205,
+            message: 'Your Email is sent'
+        }
     }
 
 }

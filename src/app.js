@@ -2,7 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser'
 import ApiRoutes from './routes/api/index'
+import AdminRoutes from './routes/admin/index'
 import exphbs from 'express-handlebars'
+import cors from 'cors';
 const app = express();
 const expressSwagger = require('express-swagger-generator')(app);
 
@@ -24,6 +26,8 @@ mongoose.connect(url,{useNewUrlParser: true})
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(express.json());
+app.use(cors());
+app.options('*', cors());
 
 // View engine setup
 app.engine('handlebars', exphbs());
@@ -33,6 +37,7 @@ app.set('view engine', 'handlebars');
  * Routes
  */
 ApiRoutes(app);
+AdminRoutes(app);
 
 /** swagger integrate
  *

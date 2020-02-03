@@ -6,6 +6,7 @@ import Categories from '../../models/categories';
 import {SUCCESS, BAD_REQUEST, BUSINESS, NO_RECORD_FOUND, CATEGORY} from '../../constants/lang';
 import dispatchMail from "../../services/MailerService";
 import {emailFormatting} from "../../helpers/basicHelper";
+
 let flag = false;
 
 export const addBusiness = async (req, res, next) => {
