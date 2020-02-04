@@ -51,7 +51,7 @@ import config from "../config";
 }
     export default dispatchMail;
 
-    /*export function resetPasswordMail(emailObj) {
+    /*export function forgotPasswordMail(emailObj) {
 
         transport.sendMail(
             {
@@ -73,4 +73,4 @@ import config from "../config";
         });
     }
 
-    export default resetPasswordMail;*/
+    export default forgotPasswordMail;*/

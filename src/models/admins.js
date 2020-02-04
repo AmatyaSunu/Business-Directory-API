@@ -12,7 +12,9 @@ let adminSchema = new SCHEMA(
         email: {type: String, required:true},
         password: {type: String, required:true},
         imageURL: {type: String, default: "https://www.kindpng.com/imgv/Jwxwib_avatar-michael-jordan-jersey-clip-art-michael-jordan/"},
-        token: {type: String}
+        accessToken: {type: String},
+        resetToken: {type: String},
+        resetTokenExpires: {type: String}
     }, {
         timestamps:{ createdAt: 'created_at', updatedAt: 'updated_at' }
     });

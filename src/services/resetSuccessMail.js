@@ -1,6 +1,7 @@
 import nodeMailer from "nodemailer";
 import hbs from "nodemailer-express-handlebars";
 import config from "../config";
+let flag;
 
 let emailConfig = {
     host: config.mailer.host,
@@ -18,7 +19,7 @@ let options = {
     viewEngine: {
         extname: ".hbs",
         layoutsDir: 'src/templates/',
-        defaultLayout: "forgotPassword",
+        defaultLayout: "resetSuccess",
         partialsDir: 'src/templates/partials/'
     },
     viewPath: 'src/templates/',
@@ -26,17 +27,17 @@ let options = {
 };
 transport.use("compile", hbs(options));
 
-export function resetPasswordMail(emailObj) {
- console.log(emailObj);
+export function resetSuccessMail(emailObj) {
+    console.log(emailObj);
     transport.sendMail(
         {
             from: 'sunidhiamatya.ebp@gmail.com',
             to: emailObj.email,
-            subject: 'Reset Password Link',
-            template: 'forgotPassword',
+            subject: 'Reset Password Successful',
+            template: 'resetSuccess',
             context: {
-                url: 'www.google.com',
-                name: emailObj.name
+                firstName: emailObj.firstName,
+                lastName: emailObj.lastName
             }
         },
         function (err, info){
@@ -44,8 +45,9 @@ export function resetPasswordMail(emailObj) {
                 console.log(err);
             } else {
                 console.log('Email sent: ' + info.response);
+                return flag = true;
             }
         });
 }
 
-export default resetPasswordMail;
+export default resetSuccessMail;

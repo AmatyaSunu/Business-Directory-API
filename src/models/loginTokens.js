@@ -13,5 +13,5 @@ let tokenSchema = new SCHEMA(
     }, {
     timestamps:{ createdAt: 'created_at', updatedAt: 'updated_at' }
 });
-const tokenModel = mongoose.model('tokens', tokenSchema);
+const tokenModel = mongoose.model('loginTokens', tokenSchema);
 export default tokenModel;

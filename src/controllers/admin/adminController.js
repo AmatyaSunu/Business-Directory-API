@@ -3,9 +3,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Admins from '../../models/admins';
 import {SUCCESS, EMAIL_EXIST, LOGIN,RESET, NO_RECORD_FOUND, BUSINESS, BAD_REQUEST} from '../../constants/lang';
-import Tokens from  '../../models/tokens';
-import resetPasswordMail from "../../services/resetPasswordMail";
-
+import LoginTokens from '../../models/loginTokens';
+import ResetTokens from '../../models/resetToken';
+import forgotPasswordMail from "../../services/forgotPasswordMail";
+import resetSuccessMail from "../../services/resetSuccessMail";
+let flag = false;
 export const addAdmin = async (req, res, next) => {
         console.log("Adding admin...");
         try {
@@ -31,7 +33,7 @@ export const addAdmin = async (req, res, next) => {
                             email: req.body.email,
                             password: req.body.password,
                             imageURL: req.body.imageURL,
-                            token: adminToken
+                            accessToken: adminToken
                         });
                         console.log(newAdmin);
 
@@ -85,7 +87,7 @@ export const login = async (req, res, next) => {
                     }, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '5h'});
 
                     //save token
-                    const newToken = new Tokens({
+                    const newToken = new LoginTokens({
                         userId: admin._id,
                         accessToken: accessToken,
                         refreshToken : refreshToken
@@ -122,28 +124,81 @@ export const forgotPassword = async (req, res, next) => {
         //console.log(admin);
         if (!admin) {
             console.log("Email not found");
-            res.status(NO_RECORD_FOUND.httpCode).json({
+            return res.status(NO_RECORD_FOUND.httpCode).json({
                 message: NO_RECORD_FOUND.message,
                 status: NO_RECORD_FOUND.httpCode
             });
         } else {
-            if (resetPasswordMail(req.body)) {
-                res.status(RESET.CONTACT.httpCode).json({
+               //reset token
+                const resetToken = jwt.sign({
+                    data: admin
+                }, process.env.RESET_TOKEN_SECRET, {expiresIn: '1h'});
+
+                //save token
+                const newToken = new ResetTokens({
+                    adminId: admin._id,
+                    resetToken: resetToken
+                });
+
+                newToken.save()
+                    .then(()=> console.log(newToken))
+                    .catch(err => console.log(err));
+
+                //find id and update reset token
+                const update = Admins.findByIdAndUpdate({_id: admin._id}, {resetToken: resetToken, resetTokenExpires: Date.now() + 86400000 }).exec();
+
+                //send reset link email
+                forgotPasswordMail(admin);
+
+                return res.status(RESET.CONTACT.httpCode).json({
                     message: RESET.CONTACT.message,
                     status: RESET.CONTACT.httpCode
                 });
-            } else {
-                res.status(BAD_REQUEST.httpCode).json({
-                    message: BAD_REQUEST.message
-                });
-            }
+
         }
     }catch(err){
         console.log("Error in sending reset mail"+err);
     }
     next();
-};
+}
 
-export const resetPassword = async (req, res, next) => {
+export async function resetPassword(req, res, next) {
+        console.log("Resetting password");
+        try{
+            const admin = await Admins.findOne({
+                resetToken: req.body.token,
+                resetTokenExpires:req.body.resetTokenExpires
+            }).exec();
+            console.log(admin);
+                if(admin) {
+                    if(req.body.newPassword === req.body.verifyPassword) {
 
+                        //hashing password
+                        let newPassword = bcrypt.hashSync(req.body.newPassword, 10);
+                        /*bcrypt.genSalt(10, (err,salt)=> {
+                            bcrypt.hash(req.body.newPassword, salt,(err,hash) => {
+                                //updating admin
+                              let newPassword = hash;
+                            })
+                        });*/
+
+                        const result = await Admins.findOneAndUpdate({_id: admin._id}, {password: newPassword, resetToken: undefined, resetTokenExpires: undefined}).exec();
+                        await resetSuccessMail(result);
+                    }else {
+                        console.log("Passwords do not match");
+                        // return res.status(422).json({
+                        //     message: 'Passwords do not match'
+                        // });
+                    }
+                } else {
+                    console.log("Password reset token is invalid or has expired");
+                    // return res.status(400).json({
+                    //     message: 'Password reset token is invalid or has expired.'
+                    // });
+                }
+
+        }catch(err){
+            console.log("Error in sending reset mail"+err);
+        }
+    next();
 };
